@@ -1,0 +1,25 @@
+# Build Stage
+FROM eclipse-temurin:17-jdk-alpine as build
+WORKDIR /app
+COPY mvnw .
+COPY .mvn .mvn
+COPY pom.xml .
+# Give execution permission to the maven wrapper
+RUN chmod +x mvnw
+RUN ./mvnw dependency:go-offline
+COPY src ./src
+RUN ./mvnw clean package -DskipTests
+
+# Runtime Stage
+FROM eclipse-temurin:17-jre-alpine
+WORKDIR /app
+RUN apk --no-cache add curl
+# Copy the jar from the build stage
+COPY --from=build /app/target/*.jar app.jar
+EXPOSE 8080
+
+HEALTHCHECK --interval=30s --retries=3 --start-period=10s --timeout=5s \
+  CMD curl -f http://localhost:8080/actuator/health || exit 1
+
+ENTRYPOINT [ "java", "-jar", "app.jar" ]
+
