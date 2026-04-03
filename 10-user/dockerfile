@@ -1,0 +1,5 @@
+FROM docker.io/redhat/ubi9:latest
+RUN usermod appuser
+USER appuser
+
+ENTRYPOINT [ "ENV" ]

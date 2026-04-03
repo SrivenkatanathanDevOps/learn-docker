@@ -1,1 +1,1 @@
-from docker.io/redhat/ubi9:latest
+FROM docker.io/redhat/ubi9:latest
